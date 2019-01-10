@@ -11,7 +11,6 @@ from pymystem3 import Mystem
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
 from collections import defaultdict
-from collections import Counter
 from operator import itemgetter
 
 mystem = Mystem()
@@ -22,7 +21,18 @@ corrector = jamspell.TSpellCorrector()
 corrector.LoadLangModel('ru_small.bin')
 
 
-lemmatizedWords = defaultdict(Counter)
+class Inc(object):
+    def __init__(self):
+        self.i = 0
+        self.words = set()
+
+    def __iadd__(self, elem):
+        self.i += 1
+        self.words.add(elem)
+        return self
+
+
+lemmatizedWords = defaultdict(Inc)
 numberOfWords = 0
 
 
@@ -55,7 +65,7 @@ def processLine(line):
         word = correctedWords[wordIndex]
         if wordIsCorrect(word):
             lemma = lemmatizeWord(word)
-            lemmatizedWords[lemma][words[wordIndex]] += 1
+            lemmatizedWords[lemma] += words[wordIndex]
 
 
 def lineIsCorrect(line):
@@ -86,11 +96,9 @@ def getDataFromFile(fileName):
 def output():
     with open('results.csv', 'w') as resultFile:
         writer = csv.writer(resultFile)
-        for lemma, counter in lemmatizedWords.items():
-            words = []
-            for word, occurrence in sorted(counter.items(), key=itemgetter(1), reverse=True):
-                words.append(word + "[" + str(occurrence) + "]")
-            writer.writerow([lemma, words])
+        for lemma, inc in sorted(lemmatizedWords.items(), key=lambda elem: elem[1].i, reverse=True):
+            writer.writerow([lemma, inc.words, inc.i])
+
 
 if __name__ == '__main__':
     startTime = time.time()
