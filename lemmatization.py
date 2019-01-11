@@ -11,7 +11,6 @@ from pymystem3 import Mystem
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
 from collections import defaultdict
-from operator import itemgetter
 
 mystem = Mystem()
 russian_stopwords = stopwords.words("russian")
@@ -43,7 +42,8 @@ def lemmatizeWord(word):
 
 
 def preprocessLine(line):
-    return re.sub(r'(.)(\1){2,}', r'\1', re.sub(r'[ ]{2,}', ' ', re.sub(r'[^а-яё\s]', ' ', line).replace('ё', 'e')))
+    return re.sub(r'[^а-яё\s]', ' ', line).replace('ё', 'e')
+
 
 def correctSpelling(line):
     return corrector.FixFragment(line)
@@ -101,7 +101,7 @@ def output():
 
 if __name__ == '__main__':
     startTime = time.time()
-    processText(getDataFromFile('test.csv'))
+    processText(getDataFromFile('test_content.csv'))
     endTime = time.time()
     print("Performance: %d words per second" % (numberOfWords / (endTime - startTime)))
     output()
