@@ -59,13 +59,11 @@ def getWords(line):
 
 def processLine(line):
     preprocessed = preprocessLine(line.lower())
-    correctedWords = getWords(correctSpelling(preprocessed))
-    words = getWords(preprocessed)
-    for wordIndex in range(len(words)):
-        word = correctedWords[wordIndex]
+    words = getWords(correctSpelling(preprocessed))
+    for word in words:
         if wordIsCorrect(word):
             lemma = lemmatizeWord(word)
-            lemmatizedWords[lemma] += words[wordIndex]
+            lemmatizedWords[lemma] += word
 
 
 def lineIsCorrect(line):
@@ -77,6 +75,7 @@ def lineIsCorrect(line):
 
 def getDataFromLine(line):
     return line[3].strip()
+
 
 def processText(text):
     for line in text:
